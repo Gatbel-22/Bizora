@@ -2,6 +2,7 @@ from datetime import timedelta
 from pathlib import Path
 
 import environ
+from corsheaders.defaults import default_headers
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -21,11 +22,17 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Third party
     "rest_framework",
+    "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     "django_filters",
     "drf_spectacular",
-    # Bizora apps are added here as we build them
+    # Bizora
+    "apps.core",
+    "apps.accounts",
+    "apps.businesses",
 ]
+
+AUTH_USER_MODEL = "accounts.User"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -70,9 +77,7 @@ DATABASES = {
 }
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
@@ -85,13 +90,15 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-MEDIA_URL = "media/"
+MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # --- CORS ---
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
+# Lets the frontend say which business it is acting on (needed once a user has several).
+CORS_ALLOW_HEADERS = (*default_headers, "x-business-id")
 
 # --- Django REST Framework ---
 REST_FRAMEWORK = {
@@ -111,13 +118,16 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
     ),
-    "DEFAULT_THROTTLE_RATES": {"anon": "60/min", "user": "300/min"},
+    "EXCEPTION_HANDLER": "apps.core.exceptions.api_exception_handler",
+    "DEFAULT_THROTTLE_RATES": {"anon": "60/min", "user": "300/min", "auth": "10/min"},
 }
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": True,
 }
 
 SPECTACULAR_SETTINGS = {
