@@ -24,3 +24,4 @@ Thumbs.db
 coverage/
 staticfiles/
 *.log
+backend/media/

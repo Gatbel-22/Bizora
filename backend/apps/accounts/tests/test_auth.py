@@ -124,3 +124,8 @@ class AuthTests(APITestCase):
             format="json",
         )
         self.assertEqual(login.status_code, 200)
+
+    def test_logout_works_with_only_the_refresh_token(self):
+        data = self.register().data
+        response = self.client.post(LOGOUT_URL, {"refresh": data["refresh"]}, format="json")
+        self.assertEqual(response.status_code, 204)

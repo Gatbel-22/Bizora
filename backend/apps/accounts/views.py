@@ -57,8 +57,11 @@ class RefreshView(AuthThrottleMixin, TokenRefreshView):
     pass
 
 
-class LogoutView(APIView):
-    permission_classes = [IsAuthenticated]
+class LogoutView(AuthThrottleMixin, APIView):
+    """Blacklists a refresh token. The token itself is the proof, so no access token is needed."""
+
+    permission_classes = [AllowAny]
+    authentication_classes = []
 
     @extend_schema(request=LogoutSerializer, responses={204: None})
     def post(self, request):
