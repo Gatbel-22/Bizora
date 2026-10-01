@@ -1,6 +1,7 @@
 import en from "./en";
+import inventory from "./inventory";
 
-const messages = en;
+const messages = { ...en, ...inventory };
 
 // t("dashboard.greeting", { name: "Ann" }) -> "Welcome, Ann"
 export function t(key, params) {

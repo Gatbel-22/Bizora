@@ -16,3 +16,18 @@ export const CURRENCIES = [
   { value: "KES", label: "KES - Kenyan Shilling" },
   { value: "UGX", label: "UGX - Ugandan Shilling" },
 ];
+
+export const UNITS = [
+  { value: "PIECE", label: "Piece" },
+  { value: "PACK", label: "Pack" },
+  { value: "BOX", label: "Box" },
+  { value: "CARTON", label: "Carton" },
+  { value: "BOTTLE", label: "Bottle" },
+  { value: "DOZEN", label: "Dozen" },
+  { value: "KG", label: "Kilogram" },
+  { value: "LITRE", label: "Litre" },
+];
+
+export const UNIT_LABELS = Object.fromEntries(
+  UNITS.map((unit) => [unit.value, unit.label.toLowerCase()])
+);

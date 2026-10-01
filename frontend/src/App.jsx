@@ -9,6 +9,7 @@ import DashboardPage from "./pages/DashboardPage";
 import LoginPage from "./pages/LoginPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import RegisterPage from "./pages/RegisterPage";
+import ProductsPage from "./pages/ProductsPage";
 
 export default function App() {
   return (
@@ -22,7 +23,7 @@ export default function App() {
         <Route element={<AppLayout />}>
           <Route index element={<DashboardPage />} />
           <Route path="sales" element={<ComingSoonPage titleKey="nav.sales" />} />
-          <Route path="products" element={<ComingSoonPage titleKey="nav.products" />} />
+          <Route path="products" element={<ProductsPage />} />
           <Route path="customers" element={<ComingSoonPage titleKey="nav.customers" />} />
 
           <Route element={<RequireRole roles={[ROLES.OWNER, ROLES.MANAGER]} />}>
