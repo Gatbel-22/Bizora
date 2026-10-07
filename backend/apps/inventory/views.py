@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
+from apps.audit.mixins import AuditedMixin
 from apps.businesses.permissions import IsBusinessMember, IsOwnerOrManager
 from apps.core.views import TenantScopedMixin
 
@@ -30,29 +31,37 @@ class ReadAnyWriteManagerMixin:
         return [IsOwnerOrManager()]
 
 
-class CategoryViewSet(ReadAnyWriteManagerMixin, TenantScopedMixin, viewsets.ModelViewSet):
+class CategoryViewSet(
+    AuditedMixin, ReadAnyWriteManagerMixin, TenantScopedMixin, viewsets.ModelViewSet
+):
     queryset = Category.objects.annotate(product_count=Count("products")).order_by("name")
     serializer_class = CategorySerializer
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
     search_fields = ("name",)
+    audit_fields = ("name",)
 
     def perform_destroy(self, instance):
         try:
-            instance.delete()
+            super().perform_destroy(instance)
         except ProtectedError:
             raise ValidationError(
                 "This category still has products. Move those products to another category first."
             ) from None
 
 
-class SupplierViewSet(ReadAnyWriteManagerMixin, TenantScopedMixin, viewsets.ModelViewSet):
+class SupplierViewSet(
+    AuditedMixin, ReadAnyWriteManagerMixin, TenantScopedMixin, viewsets.ModelViewSet
+):
     queryset = Supplier.objects.order_by("name")
     serializer_class = SupplierSerializer
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
     search_fields = ("name", "phone", "email")
+    audit_fields = ("name", "phone", "email", "address", "notes")
 
 
-class ProductViewSet(ReadAnyWriteManagerMixin, TenantScopedMixin, viewsets.ModelViewSet):
+class ProductViewSet(
+    AuditedMixin, ReadAnyWriteManagerMixin, TenantScopedMixin, viewsets.ModelViewSet
+):
     queryset = Product.objects.select_related("category", "supplier")
     serializer_class = ProductSerializer
     # No DELETE: products are deactivated instead, so history is never orphaned.
@@ -61,6 +70,19 @@ class ProductViewSet(ReadAnyWriteManagerMixin, TenantScopedMixin, viewsets.Model
     search_fields = ("name", "sku", "category__name")
     ordering_fields = ("name", "selling_price", "current_stock", "created_at")
     ordering = ("name",)
+    # Stock is deliberately absent: it changes through movements, which are logged separately.
+    audit_fields = (
+        "name",
+        "sku",
+        "category",
+        "supplier",
+        "description",
+        "purchase_price",
+        "selling_price",
+        "min_stock_threshold",
+        "unit",
+        "is_active",
+    )
 
     @extend_schema(request=StockAdjustmentSerializer, responses=StockMovementSerializer)
     @action(detail=True, methods=["post"], url_path="stock")

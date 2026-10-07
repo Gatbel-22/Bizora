@@ -2,6 +2,8 @@ from decimal import Decimal
 
 from django.db import transaction
 
+from apps.audit import services as audit
+
 from .exceptions import InsufficientStockError, NoStockChangeError
 from .models import AdjustmentType, MovementType, Product, StockMovement
 
@@ -53,9 +55,10 @@ def record_movement(*, business, product_id, movement_type, change, user, **deta
 def adjust_stock(*, business, product_id, adjustment_type, quantity, user, note="", unit_cost=None):
     """A manual change made by a person: stock received, stock removed, or a recount."""
     product = Product.objects.select_for_update().get(pk=product_id, business=business)
+    stock_before = product.current_stock
 
     if adjustment_type == AdjustmentType.STOCK_IN:
-        return _apply_movement(
+        movement = _apply_movement(
             product,
             movement_type=MovementType.STOCK_IN,
             change=quantity,
@@ -63,21 +66,35 @@ def adjust_stock(*, business, product_id, adjustment_type, quantity, user, note=
             note=note,
             unit_cost=unit_cost,
         )
+    else:
+        if adjustment_type == AdjustmentType.STOCK_OUT:
+            change = -quantity
+        else:  # COUNT: the user tells us what's really on the shelf
+            change = quantity - product.current_stock
+            if change == 0:
+                raise NoStockChangeError()
+        movement = _apply_movement(
+            product,
+            movement_type=MovementType.ADJUSTMENT,
+            change=change,
+            user=user,
+            note=note,
+        )
 
-    if adjustment_type == AdjustmentType.STOCK_OUT:
-        change = -quantity
-    else:  # COUNT: the user tells us what's really on the shelf
-        change = quantity - product.current_stock
-        if change == 0:
-            raise NoStockChangeError()
-
-    return _apply_movement(
-        product,
-        movement_type=MovementType.ADJUSTMENT,
-        change=change,
-        user=user,
-        note=note,
+    audit.record(
+        business=business,
+        actor=user,
+        action="product.stock_adjusted",
+        obj=product,
+        metadata={
+            "adjustment_type": adjustment_type,
+            "quantity_change": str(movement.quantity_change),
+            "stock_before": str(stock_before),
+            "stock_after": str(movement.stock_after),
+            "note": note,
+        },
     )
+    return movement
 
 
 @transaction.atomic
