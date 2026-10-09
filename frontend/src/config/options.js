@@ -31,3 +31,6 @@ export const UNITS = [
 export const UNIT_LABELS = Object.fromEntries(
   UNITS.map((unit) => [unit.value, unit.label.toLowerCase()])
 );
+
+// Methods that can settle a debt ("credit" is not a payment).
+export const PAYMENT_METHODS = ["CASH", "MOBILE_MONEY", "BANK_TRANSFER", "OTHER"];

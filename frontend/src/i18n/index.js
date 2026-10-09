@@ -1,7 +1,8 @@
+import customers from "./customers";
 import en from "./en";
 import inventory from "./inventory";
 
-const messages = { ...en, ...inventory };
+const messages = { ...en, ...inventory, ...customers };
 
 // t("dashboard.greeting", { name: "Ann" }) -> "Welcome, Ann"
 export function t(key, params) {

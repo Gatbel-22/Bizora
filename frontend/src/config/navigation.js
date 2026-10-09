@@ -1,5 +1,6 @@
 import {
   FileText,
+  History,
   LayoutDashboard,
   Package,
   Receipt,
@@ -7,6 +8,7 @@ import {
   ShoppingCart,
   Users,
 } from "lucide-react";
+
 import { ROLES } from "./roles";
 
 const ALL = [ROLES.OWNER, ROLES.MANAGER, ROLES.STAFF];
@@ -20,4 +22,5 @@ export const NAV_ITEMS = [
   { to: "/expenses", labelKey: "nav.expenses", icon: Receipt, roles: MANAGEMENT },
   { to: "/reports", labelKey: "nav.reports", icon: FileText, roles: MANAGEMENT },
   { to: "/settings", labelKey: "nav.settings", icon: Settings, roles: MANAGEMENT },
+  { to: "/activity", labelKey: "nav.activity", icon: History, roles: [ROLES.OWNER] },
 ];

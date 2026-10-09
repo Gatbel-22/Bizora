@@ -10,6 +10,9 @@ import LoginPage from "./pages/LoginPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import RegisterPage from "./pages/RegisterPage";
 import ProductsPage from "./pages/ProductsPage";
+import ActivityPage from "./pages/ActivityPage";
+import CustomerDetailPage from "./pages/CustomerDetailPage";
+import CustomersPage from "./pages/CustomersPage";
 
 export default function App() {
   return (
@@ -24,12 +27,16 @@ export default function App() {
           <Route index element={<DashboardPage />} />
           <Route path="sales" element={<ComingSoonPage titleKey="nav.sales" />} />
           <Route path="products" element={<ProductsPage />} />
-          <Route path="customers" element={<ComingSoonPage titleKey="nav.customers" />} />
+          <Route path="customers" element={<CustomersPage />} />
+          <Route path="customers/:id" element={<CustomerDetailPage />} />
 
           <Route element={<RequireRole roles={[ROLES.OWNER, ROLES.MANAGER]} />}>
             <Route path="expenses" element={<ComingSoonPage titleKey="nav.expenses" />} />
             <Route path="reports" element={<ComingSoonPage titleKey="nav.reports" />} />
             <Route path="settings" element={<ComingSoonPage titleKey="nav.settings" />} />
+          </Route>
+          <Route element={<RequireRole roles={[ROLES.OWNER]} />}>
+            <Route path="activity" element={<ActivityPage />} />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

@@ -23,3 +23,20 @@ export function formatQuantity(value, { signed = false } = {}) {
     ...(signed ? { signDisplay: "exceptZero" } : {}),
   });
 }
+
+// For plain dates from the API ("2026-10-07").
+export function formatDate(value) {
+  if (!value) return "-";
+  const date = new Date(`${value}T00:00:00`);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString();
+}
+
+export function formatDateTime(value) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "-" : date.toLocaleString();
+}
+
+// Today's date in the user's own timezone, as YYYY-MM-DD (for date inputs).
+export function todayISO() {
+  return new Date().toLocaleDateString("en-CA");
+}
