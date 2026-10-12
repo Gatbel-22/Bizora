@@ -29,6 +29,8 @@ def _read_only_money():
 class CustomerSerializer(serializers.ModelSerializer):
     outstanding_balance = _read_only_money()
     overdue_balance = _read_only_money()
+    total_purchases = _read_only_money()
+    last_purchase_at = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = Customer
@@ -42,6 +44,8 @@ class CustomerSerializer(serializers.ModelSerializer):
             "is_active",
             "outstanding_balance",
             "overdue_balance",
+            "total_purchases",
+            "last_purchase_at",
             "created_at",
         )
         read_only_fields = ("id", "created_at")

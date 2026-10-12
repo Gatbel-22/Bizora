@@ -105,3 +105,24 @@ def record_customer_payment(
         metadata={"amount": str(amount), "method": method, "note": note},
     )
     return payment
+
+
+@transaction.atomic
+def void_receivable(receivable, *, user):
+    """Cancel a debt recorded in error or whose sale was cancelled.
+
+    Debts with payments can't be voided.
+    """
+    if receivable.amount_paid > 0:
+        raise ValueError("A debt with payments can't be voided.")
+    receivable.voided_at = timezone.now()
+    receivable.updated_by = user
+    receivable.save(update_fields=["voided_at", "updated_by", "updated_at"])
+    audit.record(
+        business=receivable.business,
+        actor=user,
+        action="receivable.voided",
+        obj=receivable,
+        object_label=f"Debt for {receivable.customer.name}",
+        metadata={"amount": str(receivable.original_amount)},
+    )

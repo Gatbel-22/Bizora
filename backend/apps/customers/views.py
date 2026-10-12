@@ -36,7 +36,7 @@ class CustomerViewSet(AuditedMixin, TenantScopedMixin, viewsets.ModelViewSet):
         return [IsOwnerOrManager()]
 
     def get_queryset(self):
-        return super().get_queryset().with_balances(timezone.localdate())
+        return super().get_queryset().with_balances(timezone.localdate()).with_purchase_stats()
 
 
 class ReceivableViewSet(
@@ -48,7 +48,7 @@ class ReceivableViewSet(
 ):
     """Debts owed to the business. Manual debts can be added by owners and managers."""
 
-    queryset = Receivable.objects.select_related("customer")
+    queryset = Receivable.objects.filter(voided_at__isnull=True).select_related("customer")
     serializer_class = ReceivableSerializer
     filterset_class = ReceivableFilter
     search_fields = ("customer__name", "note")

@@ -1,8 +1,18 @@
 from datetime import timedelta
 from decimal import Decimal
 
+from django.apps import apps
 from django.db import models
-from django.db.models import DecimalField, ExpressionWrapper, F, Q, Sum, Value
+from django.db.models import (
+    DecimalField,
+    ExpressionWrapper,
+    F,
+    OuterRef,
+    Q,
+    Subquery,
+    Sum,
+    Value,
+)
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
@@ -23,14 +33,33 @@ class CustomerQuerySet(models.QuerySet):
     def with_balances(self, today):
         """Adds outstanding_balance and overdue_balance, calculated from the customer's debts."""
         money = DecimalField(max_digits=MONEY_MAX_DIGITS, decimal_places=MONEY_DECIMAL_PLACES)
-        owed = ExpressionWrapper(
-            F("receivables__original_amount") - F("receivables__amount_paid"),
-            output_field=money,
-        )
         zero = Value(Decimal("0"), output_field=money)
+        owed = ExpressionWrapper(F("original_amount") - F("amount_paid"), output_field=money)
+        debts = (
+            Receivable.objects.filter(customer=OuterRef("pk"), voided_at__isnull=True)
+            .order_by()
+            .values("customer")
+        )
+        outstanding = debts.annotate(owed_total=Sum(owed)).values("owed_total")
+        overdue = (
+            debts.filter(due_date__lt=today).annotate(owed_total=Sum(owed)).values("owed_total")
+        )
         return self.annotate(
-            outstanding_balance=Coalesce(Sum(owed), zero),
-            overdue_balance=Coalesce(Sum(owed, filter=Q(receivables__due_date__lt=today)), zero),
+            outstanding_balance=Coalesce(Subquery(outstanding, output_field=money), zero),
+            overdue_balance=Coalesce(Subquery(overdue, output_field=money), zero),
+        )
+
+    def with_purchase_stats(self):
+        """Adds total_purchases and last_purchase_at from the customer's completed sales."""
+        Sale = apps.get_model("sales", "Sale")
+        money = DecimalField(max_digits=MONEY_MAX_DIGITS, decimal_places=MONEY_DECIMAL_PLACES)
+        zero = Value(Decimal("0"), output_field=money)
+        sales = Sale.objects.filter(customer=OuterRef("pk"), status="COMPLETED").order_by()
+        totals = sales.values("customer").annotate(sum_total=Sum("total")).values("sum_total")
+        latest = sales.order_by("-sold_at").values("sold_at")[:1]
+        return self.annotate(
+            total_purchases=Coalesce(Subquery(totals, output_field=money), zero),
+            last_purchase_at=Subquery(latest),
         )
 
 
@@ -61,10 +90,10 @@ class ReceivableStatus(models.TextChoices):
 
 class ReceivableQuerySet(models.QuerySet):
     def open(self):
-        return self.filter(amount_paid__lt=F("original_amount"))
+        return self.filter(voided_at__isnull=True, amount_paid__lt=F("original_amount"))
 
     def paid(self):
-        return self.filter(amount_paid=F("original_amount"))
+        return self.filter(voided_at__isnull=True, amount_paid=F("original_amount"))
 
     def overdue(self, today):
         return self.open().filter(due_date__lt=today)
@@ -91,6 +120,8 @@ class Receivable(TenantModel):
     # Lets a credit sale point back at the sale that created this debt (Step 7).
     reference_type = models.CharField(max_length=30, blank=True)
     reference_id = models.UUIDField(null=True, blank=True)
+    # Set when a debt is cancelled (for example because its sale was cancelled).
+    voided_at = models.DateTimeField(null=True, blank=True)
 
     objects = ReceivableQuerySet.as_manager()
 
