@@ -79,12 +79,12 @@ export default function AppLayout() {
   return (
     <div className="min-h-screen">
       {/* Desktop sidebar */}
-      <aside className="hidden border-r border-slate-200 bg-white lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
+      <aside className="no-print hidden border-r border-slate-200 bg-white lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
         {sidebar}
       </aside>
 
       {/* Mobile top bar */}
-      <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-slate-200 bg-white px-2 pt-[env(safe-area-inset-top)] lg:hidden">
+      <header className="no-print sticky top-0 z-30 flex h-14 items-center justify-between border-b border-slate-200 bg-white px-2 pt-[env(safe-area-inset-top)] lg:hidden">
         <button
           type="button"
           onClick={() => setMenuOpen(true)}
@@ -127,8 +127,8 @@ export default function AppLayout() {
         </div>
       )}
 
-      <div className="lg:pl-64">
-        <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="print-flush lg:pl-64">
+        <main className="print-flush mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
           <Outlet />
         </main>
       </div>

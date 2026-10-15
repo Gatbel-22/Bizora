@@ -21,3 +21,12 @@
     @apply outline-2 outline-offset-2 outline-brand-600;
   }
 }
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .print-flush {
+    padding: 0 !important;
+  }
+}

@@ -35,6 +35,7 @@ export default function CustomerFormModal({ customer, onClose, onSaved }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    event.stopPropagation();
     const errors = {};
     if (!form.name.trim()) errors.name = t("validation.required");
     if (form.email.trim() && !EMAIL_PATTERN.test(form.email.trim())) {
@@ -55,9 +56,10 @@ export default function CustomerFormModal({ customer, onClose, onSaved }) {
 
     setSubmitting(true);
     try {
-      if (isEdit) await updateCustomer(customer.id, payload);
-      else await createCustomer(payload);
-      onSaved(t("customers.saved"));
+      const saved = isEdit
+        ? await updateCustomer(customer.id, payload)
+        : await createCustomer(payload);
+      onSaved(t("customers.saved"), saved);
     } catch (error) {
       const serverErrors = getFieldErrors(error);
       setFieldErrors(serverErrors);

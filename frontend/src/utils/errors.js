@@ -21,6 +21,13 @@ export function getErrorMessage(error) {
   return api?.message ?? t("error.generic");
 }
 
+function flattenMessages(value) {
+  if (typeof value === "string") return [value];
+  if (Array.isArray(value)) return value.flatMap(flattenMessages);
+  if (value && typeof value === "object") return Object.values(value).flatMap(flattenMessages);
+  return [];
+}
+
 // Per-field messages from a 400 response: { email: "This email is already registered." }
 export function getFieldErrors(error) {
   const details = apiError(error)?.details;
@@ -29,8 +36,8 @@ export function getFieldErrors(error) {
   const result = {};
   for (const [field, value] of Object.entries(details)) {
     if (field === "non_field_errors") continue;
-    if (Array.isArray(value)) result[field] = value.join(" ");
-    else if (typeof value === "string") result[field] = value;
+    const messages = flattenMessages(value);
+    if (messages.length > 0) result[field] = messages.join(" ");
   }
   return result;
 }

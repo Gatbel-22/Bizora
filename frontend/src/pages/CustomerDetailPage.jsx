@@ -16,6 +16,7 @@ import useFetch from "../hooks/useFetch";
 import { t } from "../i18n";
 import { getErrorMessage } from "../utils/errors";
 import { formatDate, formatDateTime, formatMoney } from "../utils/format";
+import { listSales } from "../api/sales";
 
 function LoadError({ error, onRetry }) {
   return (
@@ -62,6 +63,8 @@ export default function CustomerDetailPage() {
     `payments-${id}`
   );
 
+  const sales = useFetch(() => listSales({ customer: id, page_size: 5 }), `sales-${id}`);
+
   const handleSaved = (message) => {
     setModal(null);
     setNotice(message);
@@ -95,6 +98,7 @@ export default function CustomerDetailPage() {
   const openDebts = (debts.data?.results ?? []).filter((debt) => debt.status !== "paid");
   const debtRows = debts.data?.results ?? [];
   const paymentRows = payments.data?.results ?? [];
+  const saleRows = sales.data?.results ?? [];
   const contact = [c.phone, c.email, c.address].filter(Boolean);
 
   return (
@@ -139,7 +143,7 @@ export default function CustomerDetailPage() {
         </Alert>
       )}
 
-      <div className="mb-8 grid gap-3 sm:grid-cols-2">
+      <div className="mb-8 grid gap-3 sm:grid-cols-3">
         <div className="rounded-xl border border-slate-200 bg-white p-4">
           <p className="text-sm text-slate-600">{t("customer.outstanding")}</p>
           <p className="mt-1 text-2xl font-bold text-slate-900">
@@ -156,7 +160,53 @@ export default function CustomerDetailPage() {
             {formatMoney(c.overdue_balance, currency)}
           </p>
         </div>
+        <div className="rounded-xl border border-slate-200 bg-white p-4">
+          <p className="text-sm text-slate-600">{t("customer.totalPurchases")}</p>
+          <p className="mt-1 text-2xl font-bold text-slate-900">
+            {formatMoney(c.total_purchases, currency)}
+          </p>
+        </div>
       </div>
+
+      <section aria-labelledby="purchases-heading" className="mb-8">
+        <h2 id="purchases-heading" className="mb-3 text-lg font-semibold text-slate-900">
+          {t("customer.purchases")}
+        </h2>
+        {sales.error && <LoadError error={sales.error} onRetry={sales.reload} />}
+        {sales.loading && !sales.data && <Loading />}
+        {sales.data && saleRows.length === 0 && (
+          <p className="text-sm text-slate-600">{t("customer.noPurchases")}</p>
+        )}
+        {saleRows.length > 0 && (
+          <ul className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+            {saleRows.map((sale) => (
+              <li key={sale.id} className="border-b border-slate-200 last:border-b-0">
+                <Link
+                  to={`/sales/${sale.id}`}
+                  className="flex items-center justify-between gap-3 p-4 hover:bg-slate-50"
+                >
+                  <span>
+                    <span className="block font-semibold text-slate-900">{sale.number}</span>
+                    <span className="block text-sm text-slate-600">
+                      {formatDateTime(sale.sold_at)}
+                    </span>
+                  </span>
+                  <span className="text-right">
+                    <span className="block font-semibold text-slate-900">
+                      {formatMoney(sale.total, currency)}
+                    </span>
+                    {sale.status === "CANCELLED" && (
+                      <span className="text-xs font-semibold text-red-700">
+                        {t("sales.status.CANCELLED")}
+                      </span>
+                    )}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <section aria-labelledby="debts-heading" className="mb-8">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">

@@ -14,7 +14,15 @@ import { t } from "../i18n";
 import { getErrorMessage } from "../utils/errors";
 import { formatDateTime, formatMoney } from "../utils/format";
 
-const TYPES = ["product", "category", "supplier", "customer", "receivable", "customerpayment"];
+const TYPES = [
+  "product",
+  "category",
+  "supplier",
+  "customer",
+  "receivable",
+  "customerpayment",
+  "sale",
+];
 
 const prettyField = (name) => name.replace(/_/g, " ");
 
@@ -24,6 +32,7 @@ const showValue = (value) => {
   return String(value);
 };
 
+// Turns one audit entry into short readable lines.
 // Turns one audit entry into short readable lines.
 function describe(entry, currency) {
   const lines = Object.entries(entry.changes ?? {})
@@ -38,9 +47,16 @@ function describe(entry, currency) {
     lines.push(`Stock: ${Number(meta.stock_before)} → ${Number(meta.stock_after)}`);
     if (meta.note) lines.push(meta.note);
   } else if (entry.action === "payment.recorded") {
-    lines.push(`${formatMoney(meta.amount, currency)} · ${t(`method.${meta.method}`)}`);
+    lines.push(
+      `${formatMoney(meta.amount, currency)} · ${t(`method.${meta.payment_method ?? meta.method}`)}`
+    );
   } else if (entry.action === "receivable.created") {
     lines.push(formatMoney(meta.amount, currency));
+  } else if (entry.action === "sale.created") {
+    lines.push(`${formatMoney(meta.total, currency)} · ${t(`method.${meta.payment_method}`)}`);
+    if (meta.customer) lines.push(meta.customer);
+  } else if (entry.action === "sale.cancelled") {
+    if (meta.reason) lines.push(meta.reason);
   }
   return lines;
 }

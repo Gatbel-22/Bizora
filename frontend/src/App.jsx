@@ -13,6 +13,9 @@ import ProductsPage from "./pages/ProductsPage";
 import ActivityPage from "./pages/ActivityPage";
 import CustomerDetailPage from "./pages/CustomerDetailPage";
 import CustomersPage from "./pages/CustomersPage";
+import NewSalePage from "./pages/NewSalePage";
+import SaleDetailPage from "./pages/SaleDetailPage";
+import SalesPage from "./pages/SalesPage";
 
 export default function App() {
   return (
@@ -25,7 +28,9 @@ export default function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route index element={<DashboardPage />} />
-          <Route path="sales" element={<ComingSoonPage titleKey="nav.sales" />} />
+          <Route path="sales" element={<SalesPage />} />
+          <Route path="sales/new" element={<NewSalePage />} />
+          <Route path="sales/:id" element={<SaleDetailPage />} />
           <Route path="products" element={<ProductsPage />} />
           <Route path="customers" element={<CustomersPage />} />
           <Route path="customers/:id" element={<CustomerDetailPage />} />

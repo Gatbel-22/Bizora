@@ -34,3 +34,6 @@ export const UNIT_LABELS = Object.fromEntries(
 
 // Methods that can settle a debt ("credit" is not a payment).
 export const PAYMENT_METHODS = ["CASH", "MOBILE_MONEY", "BANK_TRANSFER", "OTHER"];
+
+// All the ways a sale can be paid ("credit" means the customer pays later).
+export const SALE_PAYMENT_METHODS = ["CASH", "MOBILE_MONEY", "BANK_TRANSFER", "CREDIT", "OTHER"];
