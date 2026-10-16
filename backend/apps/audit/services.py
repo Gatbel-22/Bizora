@@ -21,11 +21,15 @@ def _is_blank(value):
 
 
 def snapshot(instance, fields):
-    """Current values of the named model fields (foreign keys are read as raw IDs)."""
+    """Current values of the named fields. Related records are recorded by name."""
     values = {}
     for name in fields:
         field = instance._meta.get_field(name)
-        values[name] = getattr(instance, field.attname)
+        if field.is_relation:
+            related = getattr(instance, name)
+            values[name] = str(related) if related is not None else None
+        else:
+            values[name] = getattr(instance, field.attname)
     return values
 
 

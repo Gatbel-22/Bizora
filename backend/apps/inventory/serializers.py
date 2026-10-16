@@ -61,9 +61,11 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class SupplierSerializer(serializers.ModelSerializer):
+    product_count = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = Supplier
-        fields = ("id", "name", "phone", "email", "address", "notes", "created_at")
+        fields = ("id", "name", "phone", "email", "address", "notes", "product_count", "created_at")
         read_only_fields = ("id", "created_at")
 
     def validate_name(self, value):

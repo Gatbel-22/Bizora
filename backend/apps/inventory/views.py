@@ -52,7 +52,7 @@ class CategoryViewSet(
 class SupplierViewSet(
     AuditedMixin, ReadAnyWriteManagerMixin, TenantScopedMixin, viewsets.ModelViewSet
 ):
-    queryset = Supplier.objects.order_by("name")
+    queryset = Supplier.objects.annotate(product_count=Count("products")).order_by("name")
     serializer_class = SupplierSerializer
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
     search_fields = ("name", "phone", "email")
