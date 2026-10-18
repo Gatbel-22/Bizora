@@ -1,9 +1,10 @@
 import customers from "./customers";
 import en from "./en";
+import expenses from "./expenses";
 import inventory from "./inventory";
 import sales from "./sales";
 
-const messages = { ...en, ...inventory, ...customers, ...sales };
+const messages = { ...en, ...inventory, ...customers, ...sales, ...expenses };
 
 // t("dashboard.greeting", { name: "Ann" }) -> "Welcome, Ann"
 export function t(key, params) {

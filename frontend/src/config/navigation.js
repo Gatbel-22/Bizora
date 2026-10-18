@@ -7,6 +7,7 @@ import {
   Settings,
   ShoppingCart,
   Users,
+  Truck,
 } from "lucide-react";
 
 import { ROLES } from "./roles";
@@ -20,6 +21,7 @@ export const NAV_ITEMS = [
   { to: "/products", labelKey: "nav.products", icon: Package, roles: ALL },
   { to: "/customers", labelKey: "nav.customers", icon: Users, roles: ALL },
   { to: "/expenses", labelKey: "nav.expenses", icon: Receipt, roles: MANAGEMENT },
+  { to: "/suppliers", labelKey: "nav.suppliers", icon: Truck, roles: MANAGEMENT },
   { to: "/reports", labelKey: "nav.reports", icon: FileText, roles: MANAGEMENT },
   { to: "/settings", labelKey: "nav.settings", icon: Settings, roles: MANAGEMENT },
   { to: "/activity", labelKey: "nav.activity", icon: History, roles: [ROLES.OWNER] },

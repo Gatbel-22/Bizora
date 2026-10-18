@@ -14,6 +14,7 @@ const EMPTY_FORM = {
   name: "",
   sku: "",
   category: "",
+  supplier: "",
   unit: "PIECE",
   selling_price: "",
   purchase_price: "",
@@ -28,6 +29,7 @@ function toForm(product) {
     name: product.name,
     sku: product.sku ?? "",
     category: product.category ?? "",
+    supplier: product.supplier ?? "",
     unit: product.unit,
     selling_price: product.selling_price,
     purchase_price: product.purchase_price ?? "",
@@ -54,7 +56,7 @@ function validate(form, isEdit) {
   return errors;
 }
 
-export default function ProductFormModal({ product, categories, onClose, onSaved }) {
+export default function ProductFormModal({ product, categories, suppliers, onClose, onSaved }) {
   const isEdit = Boolean(product);
   const [form, setForm] = useState(isEdit ? toForm(product) : EMPTY_FORM);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -77,6 +79,7 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
       name: form.name.trim(),
       sku: form.sku.trim(),
       category: form.category || null,
+      supplier: form.supplier || null,
       unit: form.unit,
       selling_price: form.selling_price.trim(),
       purchase_price: form.purchase_price.trim() || "0",
@@ -102,6 +105,11 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
   const categoryOptions = [
     { value: "", label: t("field.noCategory") },
     ...categories.map((category) => ({ value: category.id, label: category.name })),
+  ];
+
+  const supplierOptions = [
+    { value: "", label: t("field.noSupplier") },
+    ...suppliers.map((supplier) => ({ value: supplier.id, label: supplier.name })),
   ];
 
   return (
@@ -143,6 +151,14 @@ export default function ProductFormModal({ product, categories, onClose, onSaved
           value={form.category}
           onChange={handleChange}
           error={fieldErrors.category}
+        />
+        <SelectField
+          label={t("field.supplier")}
+          name="supplier"
+          options={supplierOptions}
+          value={form.supplier}
+          onChange={handleChange}
+          error={fieldErrors.supplier}
         />
         <div className="grid gap-4 sm:grid-cols-2">
           <TextField

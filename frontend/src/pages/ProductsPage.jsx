@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { listCategories, listProducts } from "../api/inventory";
+import { listCategories, listProducts, listSuppliers } from "../api/inventory";
 import CategoriesModal from "../components/products/CategoriesModal";
 import ProductFormModal from "../components/products/ProductFormModal";
 import ProductRow from "../components/products/ProductRow";
@@ -43,6 +43,7 @@ export default function ProductsPage() {
   };
   const products = useFetch(() => listProducts(params), JSON.stringify(params));
   const categories = useFetch(() => listCategories(), "categories");
+  const suppliers = useFetch(() => listSuppliers(), "suppliers");
 
   const rows = products.data?.results ?? [];
   const pageCount = Math.ceil((products.data?.count ?? 0) / PAGE_SIZE);
@@ -203,6 +204,7 @@ export default function ProductsPage() {
         <ProductFormModal
           product={modal.product}
           categories={categories.data?.results ?? []}
+          suppliers={suppliers.data?.results ?? []}
           onClose={closeModal}
           onSaved={handleSaved}
         />

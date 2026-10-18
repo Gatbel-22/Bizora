@@ -17,3 +17,9 @@ export const deleteCategory = (id) => api.delete(`/categories/${id}/`);
 
 export const listMovements = (params) =>
   api.get("/inventory/movements/", { params: cleanParams(params) }).then(unwrap);
+
+export const listSuppliers = (params) =>
+  api.get("/suppliers/", { params: cleanParams({ page_size: 100, ...params }) }).then(unwrap);
+export const createSupplier = (payload) => api.post("/suppliers/", payload).then(unwrap);
+export const updateSupplier = (id, payload) => api.patch(`/suppliers/${id}/`, payload).then(unwrap);
+export const deleteSupplier = (id) => api.delete(`/suppliers/${id}/`);

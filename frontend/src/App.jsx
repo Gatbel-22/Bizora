@@ -16,6 +16,8 @@ import CustomersPage from "./pages/CustomersPage";
 import NewSalePage from "./pages/NewSalePage";
 import SaleDetailPage from "./pages/SaleDetailPage";
 import SalesPage from "./pages/SalesPage";
+import ExpensesPage from "./pages/ExpensesPage";
+import SuppliersPage from "./pages/SuppliersPage";
 
 export default function App() {
   return (
@@ -36,7 +38,8 @@ export default function App() {
           <Route path="customers/:id" element={<CustomerDetailPage />} />
 
           <Route element={<RequireRole roles={[ROLES.OWNER, ROLES.MANAGER]} />}>
-            <Route path="expenses" element={<ComingSoonPage titleKey="nav.expenses" />} />
+            <Route path="expenses" element={<ExpensesPage />} />
+            <Route path="suppliers" element={<SuppliersPage />} />
             <Route path="reports" element={<ComingSoonPage titleKey="nav.reports" />} />
             <Route path="settings" element={<ComingSoonPage titleKey="nav.settings" />} />
           </Route>

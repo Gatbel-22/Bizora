@@ -22,6 +22,8 @@ const TYPES = [
   "receivable",
   "customerpayment",
   "sale",
+  "expense",
+  "expensecategory",
 ];
 
 const prettyField = (name) => name.replace(/_/g, " ");

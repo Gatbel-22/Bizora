@@ -45,6 +45,7 @@ describe("ProductsPage", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     inventoryApi.listCategories.mockResolvedValue(page([]));
+    inventoryApi.listSuppliers.mockResolvedValue(page([]));
   });
 
   it("lists products with low-stock and out-of-stock badges", async () => {
