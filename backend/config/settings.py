@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "apps.customers",
     "apps.sales",
     "apps.expenses",
+    "apps.analytics",
 ]
 
 AUTH_USER_MODEL = "accounts.User"
