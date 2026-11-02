@@ -3,10 +3,12 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as authApi from "../api/auth";
+import * as dashboardApi from "../api/dashboard";
 import App from "../App";
 import AuthProvider from "../context/AuthProvider";
 
 vi.mock("../api/auth");
+vi.mock("../api/dashboard");
 
 const loginResponse = {
   access: "access-token",
@@ -60,12 +62,15 @@ describe("authentication flow", () => {
 
   it("signs in and lands on the dashboard", async () => {
     authApi.loginRequest.mockResolvedValue(loginResponse);
+    // The dashboard never answers here: this test only checks that sign-in opens the page.
+    dashboardApi.getDashboard.mockReturnValue(new Promise(() => {}));
     const user = userEvent.setup();
     renderApp("/login");
     await user.type(screen.getByLabelText(/^email/i), "owner@example.com");
     await user.type(screen.getByLabelText(/^password/i), "Str0ng-Pass-123");
     await user.click(screen.getByRole("button", { name: "Sign in" }));
     expect(await screen.findByRole("heading", { name: "Welcome, Test" })).toBeInTheDocument();
-    expect(screen.getByText("No sales yet")).toBeInTheDocument();
+    expect(screen.getByLabelText("Time period")).toBeInTheDocument();
+    expect(dashboardApi.getDashboard).toHaveBeenCalledWith({ period: "this_month" });
   });
 });

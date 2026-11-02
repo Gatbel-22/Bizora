@@ -40,3 +40,21 @@ export function formatDateTime(value) {
 export function todayISO() {
   return new Date().toLocaleDateString("en-CA");
 }
+
+// 18.4 -> "18.4%". The sign is shown separately (with an arrow), so this is always positive.
+export function formatPercent(value) {
+  if (value === null || value === undefined) return "-";
+  return `${Math.abs(value).toLocaleString(undefined, { maximumFractionDigits: 1 })}%`;
+}
+
+// 1250000 -> "1.3M" (for chart axes).
+export function formatCompact(value) {
+  return Number(value).toLocaleString(undefined, { notation: "compact", maximumFractionDigits: 1 });
+}
+
+// "2026-10-14" -> "14 Oct"
+export function formatShortDate(value) {
+  const date = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString(undefined, { day: "numeric", month: "short" });
+}

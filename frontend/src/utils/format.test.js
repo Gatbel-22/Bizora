@@ -1,5 +1,5 @@
+import { formatCompact, formatMoney, formatPercent, formatQuantity } from "./format";
 import { describe, expect, it } from "vitest";
-import { formatMoney, formatQuantity } from "./format";
 
 describe("formatMoney", () => {
   it("shows the currency code and groups thousands", () => {
@@ -29,5 +29,23 @@ describe("formatQuantity", () => {
     expect(formatQuantity("10.000", { signed: true })).toBe("+10");
     expect(formatQuantity("-4.000", { signed: true })).toMatch(/4$/);
     expect(formatQuantity("-4.000", { signed: true })).toMatch(/^[-−]/);
+  });
+});
+
+describe("formatPercent", () => {
+  it("always shows a positive percentage (the arrow shows the direction)", () => {
+    expect(formatPercent(18)).toBe("18%");
+    expect(formatPercent(-31.5)).toBe("31.5%");
+  });
+
+  it("shows a dash when there is nothing to compare", () => {
+    expect(formatPercent(null)).toBe("-");
+  });
+});
+
+describe("formatCompact", () => {
+  it("shortens large numbers for chart axes", () => {
+    expect(formatCompact(1250000)).toMatch(/1\.3M|1\.2M/);
+    expect(formatCompact(950)).toBe("950");
   });
 });
