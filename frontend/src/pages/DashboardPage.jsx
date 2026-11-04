@@ -8,7 +8,6 @@ import ProfitBreakdown from "../components/dashboard/ProfitBreakdown";
 import StatCard from "../components/dashboard/StatCard";
 import TrendChart from "../components/dashboard/TrendChart";
 import Alert from "../components/ui/Alert";
-import Button from "../components/ui/Button";
 import EmptyState from "../components/ui/EmptyState";
 import SelectField from "../components/ui/SelectField";
 import Spinner from "../components/ui/Spinner";
